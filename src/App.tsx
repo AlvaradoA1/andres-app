@@ -2,23 +2,22 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+
 function App() {
+  const [messages, setMessages] = React.useState<{message: string}[]>();
+
+React.useEffect(() => {
+  fetchMessages()
+}, [])
+
+const fetchMessages = async () => {
+  const response = await fetch('http://localhost:3000/api/messages')
+  setMessages(await response.json())
+}
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {messages?.map(message => <div>{message.message}</div>)}
+    
     </div>
   );
 }
