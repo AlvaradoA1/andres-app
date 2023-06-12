@@ -17,6 +17,8 @@ React.useEffect(() => {
   fetchMessages()
 }, [])
 
+
+
 const fetchMessages = async () => {
   const response = await fetch('http://localhost:3000/api/messages')
   const responseBody=await response.json();
@@ -45,9 +47,7 @@ const deleteMessage = async (id:any) => {
 }; 
 
 const editMessage = async (id:any, newMessage:any) => {
-  const updatedMessage= {
-    ...messages.find((msg) => msg.id === id),
-    message: newMessage,};
+  const updatedMessage = {message: newMessage , id: id}
   await fetch(`http://localhost:3000/api/messages/${id}`, {
     method: 'PUT', body: JSON.stringify(updatedMessage) , headers: {
       "Content-Type": "application/json",
@@ -82,6 +82,14 @@ const createMessage = async () => {
 const handleChange = (e :any) => {setInput(e.target.value)}
 
 const DraggableMessage = ({ message, index, moveMessage, editMessage }:any) => {
+  const [buttonText, setButtonText] = React.useState('\u00D7');
+  const handleMouseEnter = () => {
+    setButtonText('\u2713');
+  };
+  
+  const handleMouseLeave = () => {
+    setButtonText('\u00D7');
+  };
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'message',
     item: { id: message.id, index },
@@ -113,6 +121,9 @@ const DraggableMessage = ({ message, index, moveMessage, editMessage }:any) => {
     setIsEditing(false);
   };
 
+ 
+  
+
   return (
     <div
       ref={(node) => drag(drop(node))}
@@ -139,6 +150,14 @@ const DraggableMessage = ({ message, index, moveMessage, editMessage }:any) => {
           onChange={handleTextFieldChange}
           autoFocus
           onBlur={handleEditSave}
+          sx={{
+            
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: 'black' }, 
+              '&:hover fieldset': { borderColor: 'black' }, // Change outline color on hover
+            },
+            
+      }}
         />
       </>
     ) : (
@@ -155,11 +174,23 @@ const DraggableMessage = ({ message, index, moveMessage, editMessage }:any) => {
           fontSize: '14px',
           outline: 'none',
         }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        {'\u00D7'}
+        {buttonText}
       </button>
     </div>
   );
+};
+
+const updateMessagesOrder = async (newMessages:any) => {
+  await fetch('http://localhost:3000/api/messages', {
+    method: 'PUT',
+    body: JSON.stringify(newMessages),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 };
 
 
@@ -169,6 +200,7 @@ const moveMessage = (dragIndex:any, hoverIndex:any) => {
   newMessages.splice(dragIndex, 1);
   newMessages.splice(hoverIndex, 0, draggedMessage);
   setMessages(newMessages);
+  updateMessagesOrder(newMessages); 
 };
 
 
@@ -187,6 +219,11 @@ const moveMessage = (dragIndex:any, hoverIndex:any) => {
       }}>
       <h1 style={{ marginBottom: '20px' }}>The Great To Do List</h1>
       <TextField id="Enter message" label="Add Item To Do" variant="outlined"  style ={{marginBottom: '10px'}} value={input} onChange ={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              
+              handleClick(); 
+            }}} 
           sx={{
             '& label': { color: '#4E8282' }, 
             '& .MuiOutlinedInput-root': {
