@@ -5,7 +5,7 @@ import { MongoClient } from "mongodb";
 const app = express();
 const port = 5000;
 
-const url = "mongodb://localhost:27017";
+const url = "mongodb://mongodb:27017";
 const client = new MongoClient(url);
 
 client.connect();
@@ -19,7 +19,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //const messages: any[] = [];
 
 const getMessages = async (request: any, response: any) => {
-  const messages = await collection.find().toArray();
+  const searchQuery = request.query.search;
+  let messages
+  if(searchQuery){
+    const searchRegex = new RegExp(searchQuery, "i");
+    console.log(searchRegex);
+    messages = await collection.find({ message: { $regex: searchQuery , $options: "i" } }).toArray();
+    console.log(messages.length);
+  }
+  else
+  { messages = await collection.find().toArray();
+  }
   response.json(messages);
 };
 

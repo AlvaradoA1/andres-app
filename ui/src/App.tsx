@@ -6,21 +6,29 @@ import { v4 as uuidv4 } from "uuid";
 
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import DraggableMessage from "./draggableMessages"
 
 function App() {
   const [messages, setMessages] = React.useState<
     { message: string; id: number }[]
   >([]);
   const [input, setInput] = React.useState("");
+  const [searchInput, setSearchInput] = React.useState("");
+
 
   React.useEffect(() => {
     fetchMessages();
-  }, []);
+  }, [searchInput]);
+
+  
 
   const fetchMessages = async () => {
-    const response = await fetch("http://localhost:3000/api/messages");
+    const response = await fetch(
+      `http://localhost:3000/api/messages${searchInput ? "?search=" + searchInput : ""}`
+    );
     const responseBody = await response.json();
     setMessages(responseBody);
+
   };
 
   const deleteMessages = async () => {
@@ -43,6 +51,8 @@ function App() {
     fetchMessages();
   };
 
+
+
   const editMessage = async (id: any, newMessage: any) => {
     const updatedMessage = { message: newMessage, id: id };
     await fetch(`http://localhost:3000/api/messages/${id}`, {
@@ -62,7 +72,7 @@ function App() {
   };
 
   const createMessage = async () => {
-    const newMessage = { message: input, id: uuidv4() };
+    const newMessage = { message: input, id: uuidv4(), };
 
     await fetch(`http://localhost:3000/api/messages`, {
       method: "POST",
@@ -78,107 +88,14 @@ function App() {
     setInput(e.target.value);
   };
 
-  const DraggableMessage = ({
-    message,
-    index,
-    moveMessage,
-    editMessage,
-  }: any) => {
-    const [buttonText, setButtonText] = React.useState("\u00D7");
-    const handleMouseEnter = () => {
-      setButtonText("\u2713");
-    };
+  const handleSearchChange = (e: any) => {
+    setSearchInput(e.target.value);
 
-    const handleMouseLeave = () => {
-      setButtonText("\u00D7");
-    };
-    const [{ isDragging }, drag] = useDrag(() => ({
-      type: "message",
-      item: { id: message.id, index },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }));
-    const [isEditing, setIsEditing] = React.useState(false);
-    const [editedMessage, setEditedMessage] = React.useState(message.message);
-
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: "message",
-      drop: (item: any) => moveMessage(item.index, index),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }));
-
-    const handleEditClick = () => {
-      setIsEditing(true);
-    };
-
-    const handleTextFieldChange = (e: any) => {
-      setEditedMessage(e.target.value);
-    };
-
-    const handleEditSave = () => {
-      editMessage(message.id, editedMessage);
-      setIsEditing(false);
-    };
-
-    return (
-      <div
-        ref={(node) => drag(drop(node))}
-        key={message.id}
-        style={{
-          backgroundColor: isDragging || isOver ? "#f0f0f0" : "#ffffff",
-          borderColor: "#ffffff",
-          borderStyle: "solid",
-          borderWidth: "1px",
-          padding: "10px",
-          margin: "5px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "200px",
-          textAlign: "left",
-          fontSize: "16px",
-          color: "black",
-        }}
-      >
-        {isEditing ? (
-          <>
-            <TextField
-              value={editedMessage}
-              onChange={handleTextFieldChange}
-              autoFocus
-              onBlur={handleEditSave}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "black" },
-                  "&:hover fieldset": { borderColor: "black" }, // Change outline color on hover
-                },
-              }}
-            />
-          </>
-        ) : (
-          <span onClick={handleEditClick}>{message.message}</span>
-        )}
-        <button
-          onClick={() => deleteMessage(message.id)}
-          style={{
-            backgroundColor: "transparent",
-            border: "none",
-            color: "inherit",
-            cursor: "pointer",
-            fontSize: "14px",
-            outline: "none",
-          }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          {buttonText}
-        </button>
-      </div>
-    );
   };
+  const handleSearchClear = () => {
+    setSearchInput("");
+
+  }
 
   const updateMessagesOrder = async (newMessages: any) => {
     await fetch("http://localhost:3000/api/messages", {
@@ -188,6 +105,7 @@ function App() {
         "Content-Type": "application/json",
       },
     });
+    fetchMessages();
   };
 
   const moveMessage = (dragIndex: any, hoverIndex: any) => {
@@ -202,6 +120,46 @@ function App() {
   return (
     <DndProvider backend={HTML5Backend}>
       <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+
+
+          backgroundColor: "#282c34",
+
+        }}>
+        <TextField
+          id="search-message"
+          label="Search Items"
+          variant="filled"
+          value={searchInput}
+
+          onChange={handleSearchChange}
+
+          InputProps={{
+            style: {
+              backgroundColor: "#1183ca",
+              color: "black"
+            }
+          }} />
+
+        <button
+          onClick={handleSearchClear}
+          style={{
+            backgroundColor: "transparent",
+            border: "none",
+            color: "inherit",
+            cursor: "pointer",
+            fontSize: "18px",
+            outline: "none",
+          }}
+
+        >
+          {"\u21BB"}
+        </button>
+      </div>
+
+      <div
         className="App"
         style={{
           display: "flex",
@@ -214,6 +172,8 @@ function App() {
         }}
       >
         <h1 style={{ marginBottom: "20px" }}>The Great To Do List</h1>
+
+
         <TextField
           id="Enter message"
           label="Add Item To Do"
@@ -261,14 +221,26 @@ function App() {
             Submit{" "}
           </Button>
         </div>
-        {messages?.map((message, index) => (
-          <DraggableMessage
-            key={message.id}
-            message={message}
-            index={index}
-            moveMessage={moveMessage}
-            editMessage={editMessage}
-          />
+        {messages.map((message, index) => (
+          <div style={{
+            display: "flex",
+
+
+
+            backgroundColor: "#282c34",
+
+          }}>
+            <DraggableMessage
+              key={message.id}
+              message={message}
+              index={index}
+              moveMessage={moveMessage}
+              editMessage={editMessage}
+              deleteMessage={deleteMessage}
+              isSearchActive= {searchInput.length>0}
+            />
+        
+          </div>
         ))}
       </div>
     </DndProvider>
