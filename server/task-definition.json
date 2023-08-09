@@ -1,0 +1,76 @@
+{
+    "family": "andres-app-task",
+    "containerDefinitions": [
+        {
+            "name": "andres-app-server",
+            "image": "265632502439.dkr.ecr.us-east-1.amazonaws.com/andres-app-server:latest",
+            "cpu": 512,
+            "memory": 1024,
+            "portMappings": [
+                {
+                    "name": "andres-app-server-5000-tcp",
+                    "containerPort": 5000,
+                    "hostPort": 5000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            }
+        },
+        {
+            "name": "mongo",
+            "image": "docker.io/mongo:latest",
+            "cpu": 512,
+            "memory": 1024,
+            "portMappings": [
+                {
+                    "name": "mongo-27017-tcp",
+                    "containerPort": 27017,
+                    "hostPort": 27017,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": []
+        }
+    ],
+    "executionRoleArn": "arn:aws:iam::265632502439:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [
+        {
+            "name": "andres-app-volume",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-08afacbee5285e67d",
+                "rootDirectory": "/"
+            }
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}

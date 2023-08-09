@@ -24,7 +24,7 @@ function App() {
 
   const fetchMessages = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/messages${searchInput ? "?search=" + searchInput : ""}`
+      `${process.env.REACT_APP_API_URL}/messages${searchInput ? "?search=" + searchInput : ""}`
     );
     const responseBody = await response.json();
     setMessages(responseBody);
@@ -32,7 +32,7 @@ function App() {
   };
 
   const deleteMessages = async () => {
-    await fetch(`http://localhost:3000/api/messages`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/messages`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ function App() {
   };
 
   const deleteMessage = async (id: any) => {
-    await fetch(`http://localhost:3000/api/messages/${id}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/messages/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +55,7 @@ function App() {
 
   const editMessage = async (id: any, newMessage: any) => {
     const updatedMessage = { message: newMessage, id: id };
-    await fetch(`http://localhost:3000/api/messages/${id}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/messages/${id}`, {
       method: "PUT",
       body: JSON.stringify(updatedMessage),
       headers: {
@@ -74,7 +74,7 @@ function App() {
   const createMessage = async () => {
     const newMessage = { message: input, id: uuidv4(), };
 
-    await fetch(`http://localhost:3000/api/messages`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/messages`, {
       method: "POST",
       body: JSON.stringify(newMessage),
       headers: {
@@ -98,7 +98,7 @@ function App() {
   }
 
   const updateMessagesOrder = async (newMessages: any) => {
-    await fetch("http://localhost:3000/api/messages", {
+    await fetch("${process.env.REACT_APP_API_URL}/messages", {
       method: "PUT",
       body: JSON.stringify(newMessages),
       headers: {
