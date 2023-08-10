@@ -8,8 +8,8 @@ services:
   server:
     depends_on:
       - mongodb
-    build: ./server
-    command: npm start
+    build: .
+    image: 265632502439.dkr.ecr.us-east-1.amazonaws.com/andres-app-server
     ports:
       - 5000:5000
     links:
