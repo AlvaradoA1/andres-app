@@ -5,7 +5,7 @@ import { MongoClient } from "mongodb";
 const app = express();
 const port = 5000;
 
-const url = "mongodb://mongodb:27017";
+const url = "mongodb://localhost:27017";
 const client = new MongoClient(url);
 
 client.connect();
