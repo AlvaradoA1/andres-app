@@ -73,18 +73,20 @@ const updateMessagesOrder = async (request: any, response: any) => {
 };
 
 // user
-app.get("/api/messages", getMessages);
+app.get("/messages", getMessages);
 
 // messages
-app.post("/api/messages", postMessages);
+app.post("/messages", postMessages);
 
-app.delete("/api/messages/:id", deleteMessage);
+app.delete("/messages/:id", deleteMessage);
 
-app.delete("/api/messages", deleteAll);
+app.delete("/messages", deleteAll);
 
-app.put("/api/messages/:id", updateMessage);
+app.put("/messages/:id", updateMessage);
 
 // tslint:disable-next-line:no-console
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
-app.put("/api/messages", updateMessagesOrder);
+app.put("/messages", updateMessagesOrder);
+
+app.get("/", (request, response) => response.sendStatus(200));
