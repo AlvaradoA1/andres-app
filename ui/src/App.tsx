@@ -98,7 +98,7 @@ function App() {
   }
 
   const updateMessagesOrder = async (newMessages: any) => {
-    await fetch("${process.env.REACT_APP_API_URL}/messages", {
+    await fetch(`${process.env.REACT_APP_API_URL}/messages`, {
       method: "PUT",
       body: JSON.stringify(newMessages),
       headers: {
